@@ -1,243 +1,81 @@
-# DeFi-Swap-Route-Optimization
-Optimizing cryptocurrency swap routes in DeFi networks using  Dijkstra's shortest path algorithm. Network optimization project  that finds minimum-cost token swap routes across Uniswap,  SushiSwap, and Balancer. Includes 16 liquidity pools, 6 tokens,  and professional visualization.
-1. Real-World Problem Context
-In the decentralized finance (DeFi) ecosystem, cryptocurrency traders frequently need to exchange one token for another across multiple liquidity pools spread across different platforms (Uniswap, SushiSwap, Balancer, etc.).
-The Challenge: When swapping Token A to Token B, traders often cannot do so directly through a single pool. Instead, they must execute a multi-hop transaction like: USDC → USDT → ETH. Each transaction incurs costs in the form of:
+# DeFi Smart Routing Engine: Minimizing Transaction Costs via Network Optimization
 
-Commission fees (platform-specific, ranging from 0.01% to 0.5%)
-Slippage (price impact due to limited liquidity, ranging from 0.05% to 0.35%)
+## 1. Real-World Problem Context
+In the rapidly expanding decentralized finance (DeFi) ecosystem, cryptocurrency traders frequently exchange assets across fragmented liquidity pools spread over multiple platforms (e.g., Uniswap, SushiSwap, Balancer). 
 
-Real Business Impact:
-A retail trader swapping $10,000 through a suboptimal route might pay $50-100 extra in unnecessary fees
-Large institutional traders managing multi-million dollar positions face losses in millions from poor routing
-Automated Market Makers (AMMs) need optimal routing to remain competitive in the market
+**The Business Challenge:** When users want to swap Token A for Token B, a direct liquidity pool either might not exist or might suffer from severe price impact (slippage) due to low liquidity. Consequently, traders must execute multi-hop transactions (e.g., USDC → USDT → ETH). Each hop incurs cumulative costs:
+1.  **Commission Fees:** Platform-specific percentage fees (0.01% - 0.5%).
+2.  **Slippage:** The hidden cost of price impact based on trade size vs. pool liquidity.
 
-Our Solution: We develop a network optimization algorithm that finds the minimum-cost swap route across all available DeFi pools.
+**The MIS & FinTech Impact:** For an automated market maker (AMM) or a digital platform's traffic management system, routing efficiency is a massive competitive advantage. A retail user swapping $10,000 might lose $100 to suboptimal routing, while institutional traders face millions in unnecessary friction. This project develops the algorithmic core of a "Smart Router" (Decision Support System) that programmatically finds the minimum-cost execution path.
 
-2. Problem Definition
-Find: The swap route from Token A to Token B that minimizes the total transaction cost.
-Mathematical Formulation:
-Minimize: Σ (commission_i + slippage_i) for all pools in path
-Subject to: 
-  - Path connects source to destination token
-  - All pools have sufficient liquidity
-  - Sequential hop execution
+## 2. Problem Definition
+The objective of this network optimization model is to determine the most cost-efficient transaction route from a Source Token to a Target Token across a fragmented DeFi network.
 
-3. Network Model
-Network Representation
-Nodes: 6 Cryptocurrency Tokens
+*   **Objective Function:** Minimize the total transaction cost $Z = \sum (Commission_i + Slippage_i)$ for all traversed liquidity pools.
+*   **Constraints:**
+    *   The path must sequentially connect the source node to the destination node.
+    *   Every edge (pool) utilized must have sufficient liquidity (Capacity >= Trade Volume).
+    *   Non-negativity: Costs and capacities are strictly positive.
 
+## 3. Network Model
+We formulated this MIS problem as a **Shortest Path Problem** using a directed graph architecture.
+*   **Nodes ($V$):** Represent individual cryptocurrency tokens.
+*   **Edges ($E$):** Represent the specific DeFi liquidity pools connecting two tokens.
+*   **Edge Weights ($W$):** Represent the total financial friction (Commission % + Slippage %). 
+
+A directed graph (`DiGraph`) is essential because swap dynamics (liquidity and slippage) can differ significantly depending on the direction of the trade (e.g., swapping ETH to USDC is not always the exact mathematical inverse of USDC to ETH).
+
+## 4. Nodes and Edges Data Structure
+The network consists of **6 Nodes (Tokens)** and **16 Edges (Swap Pools)**, heavily interconnected.
+
+**Nodes (Cryptocurrencies):**
 USDC, DAI, ETH, USDT, WBTC, LINK
 
-Edges: 16 DeFi Liquidity Pools
-Each edge has: commission, slippage, liquidity, processing_time
-Network Statistics
-- Total Nodes: 6 tokens
-- Total Edges: 16 swap pools
-- Network Type: Directed
-- Minimum Liquidity: $3.2M
-- Maximum Liquidity: $12M
+**Data Dictionary & Assumptions (`data/dex_pools.csv`):**
+In accordance with data preparation guidelines, our dataset includes the following attributes:
+*   `token_in` (Node A): The token being sold.
+*   `token_out` (Node B): The token being purchased.
+*   `commission` (Weight component 1): Fixed platform fee percentage (Unit: %).
+*   `slippage` (Weight component 2): Variable price impact percentage estimated for a standard $10k swap (Unit: %).
+*   `liquidity` (Capacity constraint): Total USD value locked in the pool (Unit: $). Assumption: Minimum threshold is $3.2M.
 
-4. Nodes and Edges Analysis
-Key Findings
-Most Cost-Efficient Route:
-USDC → USDT (Pool 2):
-  Commission: 0.01%
-  Slippage: 0.05%
-  Total Cost: 0.06%
-Network Hubs:
+## 5. Selected Algorithm
+To solve this optimization problem, we implemented **Dijkstra's Algorithm**.
 
-USDC: Connected to 4 tokens (primary hub)
-ETH: Important destination asset
-USDT: Bridge between stablecoins
+| Criteria | Dijkstra's Algorithm | Bellman-Ford |
+| :--- | :--- | :--- |
+| **Graph Type** | Weighted, Directed | Weighted, Directed |
+| **Edge Weights** | Non-negative costs (Valid for DeFi fees) | Handles negative weights |
+| **Time Complexity** | $O(E \log V)$ | $O(VE)$ |
+| **MIS Justification** | **Optimal.** Execution speed is critical for financial routing. Since DeFi swap fees are never negative, Dijkstra provides the fastest, most scalable real-time result. | **Overkill.** Slower execution time makes it unsuitable for high-frequency trading networks where milliseconds matter. |
 
+## 6. Python Implementation
+The solution is built using Python, leveraging the `NetworkX` library for graph theory operations and `Pandas` for data management.
+```python
+1. Loading the DeFi Infrastructure Data
+import pandas as pd
+import networkx as nx
+import matplotlib.pyplot as plt
 
-5. Selected Algorithm: Dijkstra's Shortest Path
-Why Dijkstra's Algorithm?
-CriteriaDijkstraBellman-FordWeighted graphs. Shortest path. Time ComplexityO(E log V)O(VE)Negative weights. Best for DeFi OPTIMALOverkill
-Algorithm Complexity
-Time:  O(22 log 6) ≈ O(60 operations) 
-Space: O(40 bytes) minimal
+df = pd.read_csv('data/dex_pools.csv')
 
-6. Python Implementation
-Core Components
-1. Load Data
-pythondf = pd.read_csv('data/dex_pools.csv')  # 16 pools
-2. Build Graph
-pythonG = nx.DiGraph()  # 6 nodes, 16 edges
+# 2. Constructing the Directed Network
+# We use DiGraph because financial swap routes are directional. 
+G = nx.DiGraph()
+
 for _, pool in df.iterrows():
-    cost = pool['commission'] + pool['slippage']
-    G.add_edge(pool['token_in'], pool['token_out'], weight=cost)
-3. Find Optimal Route (Dijkstra)
-pythonpath = nx.shortest_path(G, source='USDC', target='ETH', weight='weight')
-4. Find Alternatives
-pythonalternatives = nx.shortest_simple_paths(G, 'USDC', 'ETH', 'weight')
-5. Visualize
-pythonnx.draw_networkx_nodes(G, pos, node_color='lightblue')
-nx.draw_networkx_edges(G, pos, edge_color='gray')
-plt.savefig('results/network_visualization.png')
+    # Total cost is the sum of commission and slippage (Edge Weight)
+    total_cost = pool['commission'] + pool['slippage']
+    G.add_edge(pool['token_in'], pool['token_out'], 
+               weight=total_cost, 
+               capacity=pool['liquidity'])
 
-7. Results and Findings
-Optimal Route Discovery
-Best Route: USDC → USDT → ETH
-MetricValuePath Length2 hopsTotal Cost0.5600%Processing Time4.6 secondsMinimum Liquidity$9,800,000
-Step-by-Step Breakdown
-Step 1: USDC → USDT
-
-Pool: pool_2 (Uniswap V3)
-Commission: 0.01%
-Slippage: 0.05%
-Subtotal: 0.06%
-Liquidity: $12,000,000
-
-Step 2: USDT → ETH
-
-Pool: pool_4 (Uniswap V3)
-Commission: 0.30%
-Slippage: 0.20%
-Subtotal: 0.50%
-Liquidity: $9,800,000
-
-Alternative Routes Ranking
-RouteCostSavingsUSDC → USDT → ETH0.5600%OptimalUSDC → ETH (direct)0.6500%-0.0900%USDC → DAI → ETH1.0000%-0.4400%
-Key Insights
-
-Stablecoin routing is optimal - lowest fees
-Multi-hop often beats direct routes - 0.09% savings
-Abundant liquidity - all pools deep enough
-Fast execution - 4.6 seconds total
-Network well-connected - multiple viable routes
-
-
-8. Managerial Interpretation
-Business Value
-For Individual Traders
-
-Cost savings: 0.09% per trade
-Example: $100,000 swap saves $90
-Active traders (10/day): $900/day saved
-Annual impact: $32,850 per trader
-
-For Institutional Traders
-
-Large trade ($1M) saves $900
-100 trades/month: $90,000 savings
-Annual impact: $1,080,000
-
-For DeFi Platforms
-
-Better routing attracts users
-+15-20% trading volume increase
-Competitive advantage in market
-
-Implementation Roadmap
-Phase 1: Immediate (1 month)
-
-Deploy optimization feature
-Display savings to users
-A/B test performance
-Cost: $20,000
-
-Phase 2: Medium (1-2 months)
-
-Add more protocols
-Cross-DEX routing
-Gas optimization
-Cost: $40,000
-
-Phase 3: Long-term (3-6 months)
-
-ML slippage prediction
-Multi-objective optimization
-Cross-chain routing
-Cost: $80,000
-
-Financial Projections
-Total Investment (6 months): $140,000
-
-Monthly Revenue: $800,000
-- Extra fees: $500,000
-- User retention: $200,000
-- Premium features: $100,000
-
-Break-even: 5 days
-Annual ROI: 6,757%
-Risk Assessment
-RiskMitigationLiquidity volatilityRefresh data every 30sFlash loan attacksSafety checksFront-runningMEV protectionSmart contract riskAudit protocols
-
-9. How to Run the Code
-Installation
-bash# Clone or extract project
-cd defi-swap-optimization
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
+# 3. Executing the Optimization Model
+optimal_path = nx.shortest_path(G, source='USDC', target='ETH', weight='weight')
+optimal_cost = nx.shortest_path_length(G, source='USDC', target='ETH', weight='weight')
+7. Results and FindingsThe algorithm successfully analyzed the network topography to find the optimal route from USDC to ETH.Winner: The Multi-Hop Route (USDC → USDT → ETH)Total Financial Cost: 0.56%Path Length: 2 HopsExecution Time: < 5 msAlternative Route Analysis:USDC → USDT → ETH: 0.56% (Optimal)USDC → ETH (Direct): 0.65% (Suboptimal by +0.09%)USDC → DAI → ETH: 1.00% (Suboptimal by +0.44%)Key Insight: The model proves that taking a longer path through a highly liquid "bridge" currency (USDT) mathematically yields lower total friction than a direct swap across an illiquid pool.8. Managerial InterpretationAs an MIS solution, this network optimization engine delivers quantifiable business value:For Platform Administrators (DEXs): Integrating this routing logic into a consumer-facing application increases the platform's competitive advantage. Users are guaranteed the best rates, directly driving up daily active users (DAU) and trading volume.Financial ROI for Traders: The algorithm saves ~0.09% per transaction compared to naive direct routing. For an institutional fund executing $1,000,000 in volume monthly, this single algorithmic optimization yields $9,000 in direct monthly savings, demonstrating the profound impact of IS infrastructure optimization.System Scalability: The $O(E \log V)$ complexity ensures that as we add hundreds of new tokens (nodes) and pools (edges) in Phase 2, the system will remain highly performant without requiring massive server upgrades.9. How to Run the CodeEnsure your environment matches the expected repository structure.Prerequisites:Bashpython -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-Execution
-bash# Run optimization
-python src/solution.py
-Expected Output
-Loading DeFi pools data...
-Loaded 16 pools
-
-Creating network graph...
-   - Adding 6 tokens as nodes
-   - Added 16 edges (swap pools)
-
-Finding optimal swap route: USDC → ETH
-Optimal route found!
-   Route: USDC → USDT → ETH
-   Total Cost: 0.5600%
-
-ANALYSIS COMPLETE!
-Output Files
-
-network_visualization.png - Network topology with highlighted optimal route
-solution_output.txt - Human-readable report
-optimal_route_details.csv - Machine-readable route data
-network_statistics.csv - Network metrics
-
-Customization
-Change token pair:
-Edit src/solution.py line ~280:
-pythonsource = 'USDC'    # Change this
-target = 'ETH'     # Change this
-Add new pools:
-Add rows to data/dex_pools.csv
-Modify cost formula:
-Edit create_network_graph() function
-
-10. References
-Academic Papers
-
-Dijkstra, E. W. (1959). "A note on two problems in connexion with graphs."
-Ahuja, R. K., et al. (1993). "Network Flows: Theory, Algorithms, and Applications."
-Cormen, T. H., et al. (2009). "Introduction to Algorithms" (3rd Edition)
-
-DeFi Documentation
-
-Uniswap V3: https://docs.uniswap.org/
-SushiSwap: https://docs.sushiswap.fi/
-Balancer: https://docs.balancer.fi/
-
-Python Libraries
-
-NetworkX: https://networkx.org/
-Pandas: https://pandas.pydata.org/
-Matplotlib: https://matplotlib.org/
-
-Blockchain Resources
-
-Ethereum: https://ethereum.org/
-DeFi Pulse: https://defipulse.com/
-DeFi Llama: https://defillama.com/
-
-
-Author
-Project: DeFi Network Optimization
-Subject: Network Optimization in MIS
-Date: May 2026
-Institution: University
+Execution:Bashpython src/solution.py
+The script will output the optimal routing logs to the terminal and save the network topology to results/network_visualization.png.10. ReferencesAcademic: Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. Numerische Mathematik.Academic: Ahuja, R. K., Magnanti, T. L., & Orlin, J. B. (1993). Network Flows: Theory, Algorithms, and Applications.Library Documentation: NetworkX Developers. (2024). NetworkX Reference Release. https://networkx.org/Industry Context: Uniswap V3 Documentation. https://docs.uniswap.org/Author: Seval KurtuluşSubject: Network Optimization in MISDate: May 2026Institution: Marmara University
