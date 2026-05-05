@@ -54,7 +54,7 @@ USDT: Bridge between stablecoins
 
 5. Selected Algorithm: Dijkstra's Shortest Path
 Why Dijkstra's Algorithm?
-CriteriaDijkstraBellman-FordWeighted graphs✅✅Shortest path✅✅Time ComplexityO(E log V)O(VE)Negative weights❌✅Best for DeFi✅ OPTIMALOverkill
+CriteriaDijkstraBellman-FordWeighted graphs. Shortest path. Time ComplexityO(E log V)O(VE)Negative weights. Best for DeFi OPTIMALOverkill
 Algorithm Complexity
 Time:  O(22 log 6) ≈ O(60 operations) 
 Space: O(40 bytes) minimal
@@ -180,19 +180,19 @@ Execution
 bash# Run optimization
 python src/solution.py
 Expected Output
-📊 Loading DeFi pools data...
-✅ Loaded 16 pools
+Loading DeFi pools data...
+Loaded 16 pools
 
-🔗 Creating network graph...
+Creating network graph...
    - Adding 6 tokens as nodes
    - Added 16 edges (swap pools)
 
-🔍 Finding optimal swap route: USDC → ETH
-✅ Optimal route found!
+Finding optimal swap route: USDC → ETH
+Optimal route found!
    Route: USDC → USDT → ETH
    Total Cost: 0.5600%
 
-✅ ANALYSIS COMPLETE!
+ANALYSIS COMPLETE!
 Output Files
 
 network_visualization.png - Network topology with highlighted optimal route
@@ -235,36 +235,6 @@ Ethereum: https://ethereum.org/
 DeFi Pulse: https://defipulse.com/
 DeFi Llama: https://defillama.com/
 
-
-Project Structure
-defi-swap-optimization/
-├── README.md                    # Complete documentation
-├── GETTING_STARTED.md           # Quick start guide
-├── requirements.txt             # Python dependencies
-├── .gitignore                   # Git configuration
-├── data/
-│   └── dex_pools.csv           # Input: 16 pools, 6 tokens
-├── src/
-│   └── solution.py             # Main algorithm
-└── results/
-    ├── network_visualization.png
-    ├── solution_output.txt
-    ├── optimal_route_details.csv
-    └── network_statistics.csv
-
-FAQ
-Q: Why Dijkstra instead of Bellman-Ford?
-A: Dijkstra is faster and all weights are positive.
-Q: Can I add more tokens?
-A: Yes, add rows to dex_pools.csv.
-Q: How often to refresh data?
-A: Every 30-60 seconds for real-time trading.
-Q: No path between tokens?
-A: Algorithm reports no route exists.
-Q: Can I use for live trading?
-A: Yes, with real-time data integration.
-Q: What about cross-chain?
-A: Current: single-chain. Extend with bridge protocols.
 
 Author
 Project: DeFi Network Optimization
