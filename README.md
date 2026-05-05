@@ -8,7 +8,6 @@ Commission fees (platform-specific, ranging from 0.01% to 0.5%)
 Slippage (price impact due to limited liquidity, ranging from 0.05% to 0.35%)
 
 Real Business Impact:
-
 A retail trader swapping $10,000 through a suboptimal route might pay $50-100 extra in unnecessary fees
 Large institutional traders managing multi-million dollar positions face losses in millions from poor routing
 Automated Market Makers (AMMs) need optimal routing to remain competitive in the market
