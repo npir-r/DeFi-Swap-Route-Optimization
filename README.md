@@ -52,8 +52,9 @@ To solve this optimization problem, we implemented **Dijkstra's Algorithm**.
 
 ## 6. Python Implementation
 The solution is built using Python, leveraging the `NetworkX` library for graph theory operations and `Pandas` for data management.
+
 ```python
-1. Loading the DeFi Infrastructure Data
+# 1. Loading the DeFi Infrastructure Data
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -70,12 +71,14 @@ for _, pool in df.iterrows():
     G.add_edge(pool['token_in'], pool['token_out'], 
                weight=total_cost, 
                capacity=pool['liquidity'])
+```
 
-# 3. Executing the Optimization Model
-optimal_path = nx.shortest_path(G, source='USDC', target='ETH', weight='weight')
-optimal_cost = nx.shortest_path_length(G, source='USDC', target='ETH', weight='weight')
 7. Results and FindingsThe algorithm successfully analyzed the network topography to find the optimal route from USDC to ETH.Winner: The Multi-Hop Route (USDC → USDT → ETH)Total Financial Cost: 0.56%Path Length: 2 HopsExecution Time: < 5 msAlternative Route Analysis:USDC → USDT → ETH: 0.56% (Optimal)USDC → ETH (Direct): 0.65% (Suboptimal by +0.09%)USDC → DAI → ETH: 1.00% (Suboptimal by +0.44%)Key Insight: The model proves that taking a longer path through a highly liquid "bridge" currency (USDT) mathematically yields lower total friction than a direct swap across an illiquid pool.8. Managerial InterpretationAs an MIS solution, this network optimization engine delivers quantifiable business value:For Platform Administrators (DEXs): Integrating this routing logic into a consumer-facing application increases the platform's competitive advantage. Users are guaranteed the best rates, directly driving up daily active users (DAU) and trading volume.Financial ROI for Traders: The algorithm saves ~0.09% per transaction compared to naive direct routing. For an institutional fund executing $1,000,000 in volume monthly, this single algorithmic optimization yields $9,000 in direct monthly savings, demonstrating the profound impact of IS infrastructure optimization.System Scalability: The $O(E \log V)$ complexity ensures that as we add hundreds of new tokens (nodes) and pools (edges) in Phase 2, the system will remain highly performant without requiring massive server upgrades.9. How to Run the CodeEnsure your environment matches the expected repository structure.Prerequisites:Bashpython -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 Execution:Bashpython src/solution.py
-The script will output the optimal routing logs to the terminal and save the network topology to results/network_visualization.png.10. ReferencesAcademic: Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. Numerische Mathematik.Academic: Ahuja, R. K., Magnanti, T. L., & Orlin, J. B. (1993). Network Flows: Theory, Algorithms, and Applications.Library Documentation: NetworkX Developers. (2024). NetworkX Reference Release. https://networkx.org/Industry Context: Uniswap V3 Documentation. https://docs.uniswap.org/Author: Seval KurtuluşSubject: Network Optimization in MISDate: May 2026Institution: Marmara University
+10. ReferencesAcademic: Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. Numerische Mathematik.Academic: Ahuja, R. K., Magnanti, T. L., & Orlin, J. B. (1993). Network Flows: Theory, Algorithms, and Applications.Library Documentation: NetworkX Developers. (2024). NetworkX Reference Release. https://networkx.org/Industry Context: Uniswap V3 Documentation. https://docs.uniswap.org/Author: Seval KurtuluşSubject: Network Optimization in MISDate: May 2026Institution: Marmara University
+
+# 3. Executing the Optimization Model
+optimal_path = nx.shortest_path(G, source='USDC', target='ETH', weight='weight')
+optimal_cost = nx.shortest_path_length(G, source='USDC', target='ETH', weight='weight')
